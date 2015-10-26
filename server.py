@@ -29,7 +29,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         print(self.dicc)
 
     def register2json(self):
-        with open(registered.json, 'w') as outfile_json:
+        with open('registered.json', 'w') as outfile_json:
             json.dump(self.dicc, outfile_json, sort_keys=True,
                       indent=3, separators=(' ', ': '))
 
