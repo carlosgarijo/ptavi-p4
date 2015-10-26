@@ -28,6 +28,11 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 del self.dicc[sip_user]
         print(self.dicc)
 
+    def register2json(self):
+        with open(registered.json, 'w') as outfile_json:
+            json.dump(self.dicc, outfile_json, sort_keys=True,
+                      indent=3, separators=(' ', ': '))
+
     def handle(self):
         # Escribe dirección y puerto del cliente (de tupla client_address)
         IP = self.client_address[0]
@@ -38,6 +43,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
                 print("El cliente nos manda " + "\n" + line.decode('utf-8'))
                 self.create_dicc(IP, line)
+                self.register2json()
             # Si no hay más líneas salimos del bucle infinito
             if not line:
                 break
