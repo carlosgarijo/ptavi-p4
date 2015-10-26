@@ -20,9 +20,8 @@ my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 my_socket.connect((IP, PORT))
 
-Mssg = ""
-for word in LINE:
-    Mssg = Mssg + " " + word
+s = " "
+Mssg = s.join(LINE)
 print("Enviando: " + Mssg)
 
 my_socket.send(bytes(Mssg, 'utf-8') + b'\r\n')
