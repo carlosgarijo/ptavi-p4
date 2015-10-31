@@ -25,7 +25,7 @@ my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 my_socket.connect((IP, PORT))
 
-Mssg_Register = metodo + " sip:" + user + " SIP/2.0\r\n\r\n"
+Mssg_Register = metodo + " sip:" + user + " SIP/2.0\r\n"
 Mssg_Expires = "Expires: " + str(expires) + "\r\n\r\n"
 print("Enviando: " + "\n" + Mssg_Register + Mssg_Expires)
 
