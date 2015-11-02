@@ -13,7 +13,7 @@ from copy import deepcopy
 
 class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """
-    Echo server class
+    Clase manejador de Register en SIP
     """
     dicc = {}
 
