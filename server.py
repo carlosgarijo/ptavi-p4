@@ -68,7 +68,6 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         usuarios y las procesa
         """
         self.json2registered()
-        print(self.dicc)
         address = self.client_address[0]
         atrib_dicc = {}
         while 1:
