@@ -25,12 +25,16 @@ my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 my_socket.connect((IP, PORT))
 
+# Creamos el mensaje Register con cabecera Expires
 Mssg_Register = metodo + " sip:" + user + " SIP/2.0\r\n"
-Mssg_Expires = "Expires: " + str(expires) + "\r\n\r\n"
+Mssg_Expires = "Expires: " + str(expires) + "\r\n"
 print("Enviando: " + "\n" + Mssg_Register + Mssg_Expires)
 
-my_socket.send(bytes(Mssg_Register, 'utf-8') + bytes(Mssg_Expires, 'utf-8') + b'\r\n')
-#my_socket.send(bytes(Mssg_Expires, 'utf-8') + b'\r\n')
+# Lo enviamos
+my_socket.send(bytes(Mssg_Register, 'utf-8') +
+               bytes(Mssg_Expires, 'utf-8') + b'\r\n')
+
+# Respuesta que recibimos del server
 data = my_socket.recv(1024)
 
 print('Recibido -- ', data.decode('utf-8'))
