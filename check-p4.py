@@ -5,7 +5,7 @@
 Script de comprobación de entrega de práctica
 
 Para ejecutarlo, desde la shell:
- $ python check-p3.py login_github
+ $ python check-p4.py login_github
 
 """
 
@@ -29,6 +29,7 @@ files = ['README.md',
          'LICENSE',
          '.gitignore',
          'check-p4.py',
+         'register.libpcap',
          '.git'
          ]
 
