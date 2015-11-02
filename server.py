@@ -8,7 +8,8 @@ import socketserver
 import sys
 import json
 import time
-import calendar
+from copy import deepcopy
+
 
 class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """
@@ -16,30 +17,41 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """
     dicc = {}
     def create_dicc(self, sip_user, expires, atrib_dicc):
-        if expires > 0:
-            if not sip_user in self.dicc.keys():
-                self.dicc[sip_user] = atrib_dicc
-        elif expires <= 0:
-            if sip_user in self.dicc.keys():
-                del self.dicc[sip_user]
+        self.dicc[sip_user] = atrib_dicc
+        if expires <= 0:
+            del self.dicc[sip_user]
 
-    def del_user(self, actual_time, expires):
-        for user in self.dicc:
+    def del_user(self, actual_time):
+        help_dicc = deepcopy(self.dicc)
+        for user in self.dicc.keys():
             atribs = self.dicc[user]
-            if actual_time >= calendar.timegm(expires):
-                del self.dicc[user]
+            expires = atribs['expires']
+            if actual_time > expires:
+                help_dicc.pop(user)
+        self.dicc = help_dicc
 
     def register2json(self):
         with open('registered.json', 'w') as outfile_json:
             json.dump(self.dicc, outfile_json, sort_keys=True,
-                      indent=3, separators=(',', ': '))
+                      indent=4, separators=(',', ': '))
+
+    def json2registered(self):
+        try:
+            with open("registered.json", 'r') as json_fich:
+                datos = json.load(json_fich)
+            users = datos.keys()
+            for user in users:
+                self.dicc[user] = datos[user]
+        except:
+            pass
 
     def handle(self):
-        # Escribe dirección y puerto del cliente (de tupla client_address)
+        self.json2registered()
+        print(self.dicc)
         address = self.client_address[0]
         atrib_dicc = {}
         while 1:
-            # Leyendo línea a línea lo que nos envía el cliente
+        # Leyendo línea a línea lo que nos envía el cliente
             line = self.rfile.read()
             line = line.decode('utf-8');
             if line.startswith("REGISTER"):
@@ -48,17 +60,20 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 sip_user = newline[1].split(':')[-1]
                 newline = line.split('\r')
                 expires = int(newline[1].split(':')[-1][1:])
-                expires_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()+expires))
+                expires_time = time.gmtime(time.time()+expires)
+                exp_time_str = time.strftime('%Y-%m-%d %H:%M:%S', expires_time)
                 atrib_dicc['address'] = address
-                atrib_dicc['expires'] = expires_time
+                atrib_dicc['expires'] = exp_time_str
                 self.create_dicc(sip_user, expires, atrib_dicc)
+                self.register2json()
                 self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
-                actual_time = time.gmtime(time.time())
-                #self.del_user(actual_time, expires)
+                actual_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
+                self.del_user(actual_time)
                 self.register2json()
             else:
-                self.wfile.write(b"Peticion recibida\r\n\r\n")
-                print("El cliente nos manda " + "\n" + line)
+                if line:
+                    self.wfile.write(b"SIP/2.0 400 Bad Request\r\n")
+                    print("El cliente nos manda " + "\n" + line)
             # Si no hay más líneas salimos del bucle infinito
             if not line:
                 break
